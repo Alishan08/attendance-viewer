@@ -1,20 +1,39 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Attendance Viewer</title>
   <style>
-    body, html { margin: 0; padding: 0; height: 100%; }
-    iframe { border: none; width: 100%; height: 100%; }
+    body { margin: 0; font-family: Arial, sans-serif; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    th { background-color: #f2f2f2; }
+    #loader { text-align: center; padding: 20px; }
   </style>
   <script>
-    // Disable back navigation inside iframe
-    history.pushState(null, null, location.href);
-    window.onpopstate = function () {
-      history.go(1);
-    };
+    async function loadSheet() {
+      const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ3R_o6uuj1v2SS6ml71stfZYFM31kFnDVf7CIpM0DS5uq2lKIvZp4AqEk6cUHOvg/pub?output=csv&gid=206506647";
+      const response = await fetch(sheetUrl);
+      const data = await response.text();
+      const rows = data.split("\n").map(r => r.split(","));
+      
+      let table = "<table>";
+      rows.forEach((row, i) => {
+        table += "<tr>";
+        row.forEach(cell => {
+          table += i === 0 ? `<th>${cell}</th>` : `<td>${cell}</td>`;
+        });
+        table += "</tr>";
+      });
+      table += "</table>";
+      document.getElementById("loader").innerHTML = table;
+    }
+
+    window.onload = loadSheet;
   </script>
 </head>
 <body>
-  <iframe src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQ3R_o6uuj1v2SS6ml71stfZYFM31kFnDVf7CIpM0DS5uq2lKIvZp4AqEk6cUHOvg/pubhtml?gid=206506647&single=true&widget=true&headers=false"></iframe>
+  <div id="loader">Loading attendance...</div>
 </body>
 </html>
